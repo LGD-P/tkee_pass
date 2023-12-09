@@ -11,7 +11,7 @@ class CreateFile():
         self.root.title('Create Database')
         self.geometry = self.root.geometry("650x300")
 
-        # FILE NAME FRAM TO COME
+        # FILE NAME FRAME TO COME
 
         # FILE PATH FRAME
         self.filepath_frame = ttk.Frame(self.root)
@@ -24,11 +24,12 @@ class CreateFile():
         self.filepath_button.grid(row=0, column=2, padx=15, sticky="W")
         self.filepath_frame.place(y=100)
 
+
         # PASSWORD FRAME
         self.password_frame = ttk.Frame(self.root)
         self.password_label = ttk.Label(self.password_frame, text="Enter Password", width=13)
         self.password_entry = ttk.Entry(self.password_frame, style='danger', show='*', width=40)
-        self.password_entry.bind("<Key>", self.get_password_strength) # to update each entry
+        self.password_entry.bind("<KeyRelease>", self.get_password_strength) # to update each entry
         self.password_button = ttk.Button(self.password_frame, style="danger-outline", text="Ok",
                                           command=self.password_button, width=9)
         self.password_label.grid(row=0, column=0, padx=15, sticky="W")
@@ -38,26 +39,57 @@ class CreateFile():
 
         # PASSWORD STRENGTH MESSAGE FRAME
         self.password_strength_frame = ttk.Frame(self.root)
-        self.very_week_label = ttk.Label(self.password_strength_frame, justify='center', anchor='center',
-                                         background="red", text='very week', width=18)
-        self.week_label = ttk.Label(self.password_strength_frame, justify='center', anchor='center',
-                                    background="red", text='week', width=18)
+        self.very_weak_label = ttk.Label(self.password_strength_frame, justify='center', anchor='center',
+                                        background="red",  width=18)
+        self.weak_label = ttk.Label(self.password_strength_frame, justify='center', anchor='center',
+                                    background="red", width=18)
         self.ok_label = ttk.Label(self.password_strength_frame, justify='center', anchor='center',
-                                  background="orange", text='ok', width=18)
+                                  background="orange", width=18)
         self.good_label = ttk.Label(self.password_strength_frame, justify='center', anchor='center',
-                                    background="green", text='good', width=18)
-        self.very_week_label.grid(row=0, column=0, padx=5, sticky="W")
-        self.week_label.grid(row=0, column=1, padx=5, sticky="W")
-        self.ok_label.grid(row=0, column=2, padx=5, sticky="W")
-        self.good_label.grid(row=0, column=3, padx=5, sticky="W")
-
+                                    background="green", width=18)
         self.password_strength_frame.place(y=200)
 
     def get_password_strength(self, *args, **kwargs):
+        """Display strength of the input password"""
         password = self.password_entry.get()
-        strength = zxcvbn(password)['score']
-        print(strength)
-        return strength
+        if len(password) > 0:
+            strength = zxcvbn(password)['score']
+            # print(strength)
+            if strength <= 1:
+                self.clear_labels()
+                self.very_weak_label.configure(text="Very Weak")
+                self.very_weak_label.grid(row=0, column=0, padx=5, sticky="W")
+            elif strength <= 2:
+                self.clear_labels()
+                self.very_weak_label.configure(text="")
+                self.weak_label.configure(text="Weak")
+                self.very_weak_label.grid(row=0, column=0, padx=5, sticky="W")
+                self.weak_label.grid(row=0, column=1, padx=5, sticky="W")
+            elif strength <= 3:
+                self.clear_labels()
+                self.very_weak_label.configure(text="")
+                self.weak_label.configure(text="")
+                self.ok_label.configure(text="Good")
+                self.very_weak_label.grid(row=0, column=0, padx=5, sticky="W")
+                self.weak_label.grid(row=0, column=1, padx=5, sticky="W")
+                self.ok_label.grid(row=0, column=2, padx=5, sticky="W")
+            elif strength > 3:
+                self.clear_labels()
+                self.very_weak_label.configure(text="")
+                self.weak_label.configure(text="")
+                self.ok_label.configure(text="")
+                self.good_label.configure(text="Strong")
+                self.very_weak_label.grid(row=0, column=0, padx=5, sticky="W")
+                self.weak_label.grid(row=0, column=1, padx=5, sticky="W")
+                self.ok_label.grid(row=0, column=2, padx=5, sticky="W")
+                self.good_label.grid(row=0, column=3, padx=5, sticky="W")
+        else:
+            pass
+
+    def clear_labels(self):
+        """Clear all labels before updating"""
+        for label in [self.very_weak_label, self.weak_label, self.ok_label, self.good_label]:
+            label.grid_forget()
 
     def filepath_button(self):
         """Ask user to choose a directory to register file"""

@@ -6,28 +6,38 @@ from pykeepass import PyKeePass, create_database
 import re
 from threading import Timer
 
+from controllers.generate_password import GeneratePassword
+
 
 class CreateFile():
     def __init__(self, parent):
         # Toplevel to be able to open new window keeping style parameters
         self.root = Toplevel(parent)
         self.root.title('Create Database')
-        self.geometry = self.root.geometry("650x300")
+        self.root.geometry("650x320")
+
+        # GENERATE PASSWORD BUTTON
+        self.generate_password_frame = ttk.Frame(self.root)
+        self.generate_password_button = ttk.Button(self.generate_password_frame, style="primary-outline",
+                                                   text='Generate password', command=self.generate_password, width=19)
+        self.generate_password_button.grid(row=0, column=0, padx=10, sticky="W")
+        self.generate_password_frame.place(y=32, x=220)
 
         # FILE NAME ERROR FRAME
         self.message_frame = ttk.Frame(self.root)
+        self.root.resizable(False, False)
         self.message_frame_label = ttk.Label(self.message_frame, justify='center', anchor='center',
                                              width=75)
         self.message_frame_label.grid(row=0, column=0, columnspan=2, padx=15, pady=5, sticky="W")
-        self.message_frame.place(y=50)
+        self.message_frame.place(y=70)
 
         # FILE NAME FRAME
         self.filename_frame = ttk.Frame(self.root)
         self.filename_label = ttk.Label(self.filename_frame, text="File name", width=13)
-        self.filename_entry = ttk.Entry(self.filename_frame, style='danger', width=40)
+        self.filename_entry = ttk.Entry(self.filename_frame, style='info', width=40)
         self.filename_label.grid(row=0, column=0, padx=15, sticky="W")
         self.filename_entry.grid(row=0, column=1, padx=15, sticky="W")
-        self.filename_frame.place(y=100)
+        self.filename_frame.place(y=120)
 
         # FILE PATH FRAME
         self.filepath_frame = ttk.Frame(self.root)
@@ -38,7 +48,7 @@ class CreateFile():
         self.filepath_label.grid(row=0, column=0, padx=15, sticky="W")
         self.filepath_entry.grid(row=0, column=1, padx=15, sticky="W")
         self.filepath_button.grid(row=0, column=2, padx=15, sticky="W")
-        self.filepath_frame.place(y=150)
+        self.filepath_frame.place(y=170)
 
         # PASSWORD FRAME
         self.password_frame = ttk.Frame(self.root)
@@ -50,7 +60,7 @@ class CreateFile():
         self.password_label.grid(row=0, column=0, padx=15, sticky="W")
         self.password_entry.grid(row=0, column=1, padx=15, sticky="W")
         self.password_button.grid(row=0, column=2, padx=15, sticky="W")
-        self.password_frame.place(y=200)
+        self.password_frame.place(y=220)
 
         # PASSWORD STRENGTH MESSAGE FRAME
         self.password_strength_frame = ttk.Frame(self.root)
@@ -157,6 +167,12 @@ class CreateFile():
             file.save()
             self.message_frame_label.configure(text="File created", foreground="green")
             Timer(5.0, self.hide_message).start()
+
+    def generate_password(self):
+        """Open new window to create_db form"""
+        generate_pass = GeneratePassword(self.root)
+        generate_pass.run()
+
 
     def run(self):
         self.root.mainloop()

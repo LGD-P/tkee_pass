@@ -9,7 +9,8 @@ from controllers.new_db_file_controller import CreateFile
 class OpenFile():
     def __init__(self):
         self.root = ttk.Window(themename='cyborg')
-        self.geometry = self.root.geometry("650x300")
+        self.root.resizable(False, False)
+        self.root.geometry("650x300")
 
         # FILE PATH FRAME
         self.filepath_frame = ttk.Frame(self.root)

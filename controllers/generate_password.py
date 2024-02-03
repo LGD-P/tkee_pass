@@ -1,5 +1,6 @@
 import os
 import random
+import string
 from tkinter import Toplevel
 import ttkbootstrap as ttk
 from faker import Faker
@@ -55,7 +56,7 @@ class GeneratePassword():
         self.pass_phrase_result_frame = ttk.Entry(self.generate_passphrase_labelframe, style='success', width=70)
 
         # Add a dummy column at the end of row 0 to expand the Entry.
-        self.generate_passphrase_labelframe.grid_columnconfigure(4, weight=1)
+        self.generate_passphrase_labelframe.grid_columnconfigure(5, weight=1)
 
         # Add the Entry widget to column 5 (the dummy column) and use columnspan to cover all the previous columns.
         self.pass_phrase_result_frame.grid(row=1, padx=10,pady=(10, 0), sticky="W", columnspan=5)
@@ -70,14 +71,14 @@ class GeneratePassword():
 
         # Upper
         self.checkbutton_lowercase_var = ttk.IntVar(value=0)
-        self.radio_lowercase = ttk.Checkbutton(self.generate_password_labelframe, text='Lowercase',
+        self.radio_lowercase = ttk.Checkbutton(self.generate_password_labelframe, text='a-z',
                                                style='default',
                                                variable=self.checkbutton_lowercase_var)
         self.radio_lowercase.grid(row=0, column=0, padx=10, sticky="W")
 
         # Lower
         self.checkbutton_uppercase_var = ttk.IntVar(value=0)
-        self.radio_uppercase = ttk.Checkbutton(self.generate_password_labelframe, text='Uppercase',
+        self.radio_uppercase = ttk.Checkbutton(self.generate_password_labelframe, text='A-Z',
                                                style='default',
                                                variable=self.checkbutton_uppercase_var)
         self.radio_uppercase.grid(row=0, column=1, padx=10, sticky="W")
@@ -90,27 +91,30 @@ class GeneratePassword():
                                                    variable=self.checkbutton_special_chars_var)
         self.radio_special_chars.grid(row=0, column=2, padx=10, sticky="W")
 
+        # Number
+        self.checkbutton_number_chars_var = ttk.IntVar(value=0)
+        self.radio_number_chars = ttk.Checkbutton(self.generate_password_labelframe, text='0-9',
+                                                   style='default',
+                                                   variable=self.checkbutton_number_chars_var)
+        self.radio_number_chars.grid(row=0, column=3, padx=10, sticky="W")
+
         # Number of char
         self.spin_number_of_chars_var = ttk.IntVar(value=0)
         self.spin_number_of_chars = ttk.Spinbox(self.generate_password_labelframe, from_=1, to=100, increment=1,
                                                 textvariable=self.spin_number_of_chars_var, width=3)
-        self.spin_number_of_chars.grid(row=0, column=3, padx=10, sticky="W")
+        self.spin_number_of_chars.grid(row=0, column=4, padx=10, sticky="W")
 
         # Bouton pour générer le mot de passe complexe
         self.generate_password_button = ttk.Button(self.generate_password_labelframe, style="primary-outline",
-                                                   text='Complex Password', command=None, width=18)
-        self.generate_password_button.grid(row=0, column=4, padx=10, sticky="W")
+                                                   text='Complex Password', command=self.complex_password, width=18)
+        self.generate_password_button.grid(row=0, column=5, padx=10, sticky="W")
+
 
         # Add a dummy column at the end of row 0 to expand the Entry.
-        self.generate_password_labelframe.grid_columnconfigure(4, weight=1)
+        self.generate_password_labelframe.grid_columnconfigure(5, weight=1)
 
         self.password_result_frame = ttk.Entry(self.generate_password_labelframe, style='success', width=70)
-        self.password_result_frame.grid(row=1, padx=10, pady=(10, 0), sticky="W", columnspan=5)
-
-
-
-
-
+        self.password_result_frame.grid(row=1, padx=10, pady=(10, 0), sticky="W", columnspan=6)
 
 
 
@@ -131,6 +135,24 @@ class GeneratePassword():
             passphrase = "-".join(words)
         return passphrase
 
+    def complex_password_choice(self,lowercase=0, uppercase=0, special_chars=0, numbers=0, number_of_char=0):
+        """
+        generate a complex password regarding user choice.
+        """
+        options = []
+        if lowercase:
+            options += string.ascii_lowercase
+        if uppercase:
+            options += string.ascii_uppercase
+        if special_chars:
+            options += "#?!@$%^&*-"
+        if numbers:
+            options += string.digits
+
+        password = ''.join(random.choice(options) for _ in range(number_of_char))
+
+        return password
+
     def pass_phrase(self):
         self.pass_phrase_result_frame.delete(0, 'end')
         separator = self.checkbutton_separator_var.get()
@@ -140,6 +162,15 @@ class GeneratePassword():
         result = self.pass_phrase_choices(separator,capitalize,number,number_of_words)
         return self.pass_phrase_result_frame.insert(0,result)
 
+    def complex_password(self):
+        self.password_result_frame.delete(0,'end')
+        lower = self.checkbutton_lowercase_var.get()
+        upper = self.checkbutton_uppercase_var.get()
+        special = self.checkbutton_special_chars_var.get()
+        number = self.checkbutton_number_chars_var.get()
+        number_of_char = self.spin_number_of_chars_var.get()
+        result = self.complex_password_choice(lower,upper,special,number,number_of_char)
+        return self.password_result_frame.insert(0,result)
 
     def run(self):
         self.root.mainloop()

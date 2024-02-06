@@ -15,9 +15,9 @@ class GeneratePassword():
         # Toplevel to be able to open new window keeping style parameters
         self.root = Toplevel(parent)
         self.root.title('Generate Password')
-        self.root.geometry("650x320")
+        self.root.geometry("650x330")
 
-        # GENERATE PASSPHRASE
+        # GENERATE PASSPHRASE FRAME
             # option Capitalize Number Sperator Number of words
 
         self.generate_passphrase_labelframe = ttk.Labelframe(self.root, text='Pass-phrase', style='info', padding=10)
@@ -62,7 +62,7 @@ class GeneratePassword():
         self.pass_phrase_result_frame.grid(row=1, padx=10,pady=(10, 0), sticky="W", columnspan=5)
 
 
-        # GENERATE COMPLEX PASSWORD:
+        # GENERATE COMPLEX PASSWORD FRAME
         # option Upper Lower Special Number of char'
         self.generate_password_labelframe = ttk.Labelframe(self.root, text='Complex Password', style='info',
                                                            padding=10)
@@ -116,7 +116,13 @@ class GeneratePassword():
         self.password_result_frame = ttk.Entry(self.generate_password_labelframe, style='success', width=70)
         self.password_result_frame.grid(row=1, padx=10, pady=(10, 0), sticky="W", columnspan=6)
 
-
+        # Message ERROR FRAME
+        self.message_frame = ttk.Frame(self.root)
+        self.root.resizable(False, False)
+        self.message_frame_label = ttk.Label(self.message_frame, justify='center', anchor='center',
+                                             width=75)
+        self.message_frame_label.grid(row=0, column=0, columnspan=2, padx=15, pady=5, sticky="W")
+        self.message_frame.place(y=280)
 
     def pass_phrase_choices(self,separator=0, capitalize=0, add_numbers=0, number_of_words=0):
         """generate passphrase regarding user choice"""
@@ -153,22 +159,49 @@ class GeneratePassword():
 
         return password
 
+    def hide_message(self):
+        """Use to hide error message"""
+        return self.message_frame_label.configure(text="", background="black")
+
     def pass_phrase(self):
+        """If settings are OK return passphrase as user wish"""
         self.pass_phrase_result_frame.delete(0, 'end')
         separator = self.checkbutton_separator_var.get()
         capitalize = self.checkbutton_capitalize_var.get()
         number = self.checkbutton_number_var.get()
         number_of_words = self.spin_number_of_words_var.get()
+
+        if number_of_words == 0:
+            self.message_frame_label.configure(text="Number of words must be higher than 0",
+                                               foreground="red")
+            Timer(5.0, self.hide_message).start()
+            return False
+
         result = self.pass_phrase_choices(separator,capitalize,number,number_of_words)
         return self.pass_phrase_result_frame.insert(0,result)
 
     def complex_password(self):
+        """If settings are OK return complex password as user wish"""
         self.password_result_frame.delete(0,'end')
         lower = self.checkbutton_lowercase_var.get()
         upper = self.checkbutton_uppercase_var.get()
         special = self.checkbutton_special_chars_var.get()
         number = self.checkbutton_number_chars_var.get()
         number_of_char = self.spin_number_of_chars_var.get()
+
+        if number_of_char == 0:
+            self.message_frame_label.configure(text="Number of character must be higher than 0",
+                                               foreground="red")
+            Timer(5.0, self.hide_message).start()
+            return False
+
+        if not (lower or upper or special or number):
+            self.message_frame_label.configure(
+                text="At least one element (lowercase, uppercase, special characters, or numbers) must be checked",
+                foreground="red")
+            Timer(5.0, self.hide_message).start()
+            return False
+
         result = self.complex_password_choice(lower,upper,special,number,number_of_char)
         return self.password_result_frame.insert(0,result)
 
